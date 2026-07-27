@@ -36,13 +36,13 @@ export default function Navbar() {
           </div>
 
           <div>
-            <h1 className="text-xl font-black tracking-tight text-[#071f49]">
-              Triton Budget
+            <h1 className="text-base font-black tracking-tight text-[#071f49] sm:text-xl">
+               Triton Budget
             </h1>
 
-            <p className="text-xs font-semibold uppercase tracking-[0.22em] text-blue-500">
-              Dining Tracker
-            </p>
+                <p className="text-[10px] font-semibold uppercase tracking-[0.18em] text-blue-500 sm:text-xs sm:tracking-[0.22em]">
+                    Dining Tracker
+                </p>
           </div>
         </Link>
 
