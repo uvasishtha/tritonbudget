@@ -2,6 +2,7 @@
 
 import { Raleway } from "next/font/google";
 import { useEffect, useState } from "react";
+import { signOut } from "next-auth/react";
 
 const raleway = Raleway({
   subsets: ["latin"],
@@ -210,6 +211,14 @@ export default function TransactionsPage() {
     >
 
       <main className="relative overflow-hidden">
+        <div className="flex justify-end p-6">
+  <button
+    onClick={() => signOut({ callbackUrl: "/login" })}
+    className="rounded-lg bg-red-500 px-4 py-2 text-white hover:bg-red-600"
+  >
+    Log Out
+  </button>
+</div>
         {/* Decorative background shapes */}
         <div className="pointer-events-none absolute -right-16 top-10 h-64 w-64 rounded-full bg-yellow-200/40 blur-3xl" />
         <div className="pointer-events-none absolute -left-20 top-80 h-72 w-72 rounded-full bg-blue-200/40 blur-3xl" />
