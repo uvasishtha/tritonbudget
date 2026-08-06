@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import { pool } from "@/lib/db"; // Ensure path matches your db export
+import { pool } from "@/lib/db"; // Make sure path matches your db export
 
 export async function POST(req: Request) {
   try {
@@ -13,7 +13,7 @@ export async function POST(req: Request) {
     const body = await req.json();
     const { merchant, vendor, amount, date, category, email } = body;
 
-    // Use vendor if merchant is not provided
+    // Use merchant or vendor
     const vendorName = merchant || vendor;
 
     if (!vendorName || amount === undefined || amount === null) {
@@ -44,11 +44,9 @@ export async function POST(req: Request) {
       }
     }
 
-    // 4. Insert into PostgreSQL
-    // Note: If your database table does NOT have a 'description' column, 
-    // remove 'description' and $4 from this query.
+    // 4. Save to PostgreSQL database using 'note' column
     const queryText = `
-      INSERT INTO transactions (user_id, amount, category, description, date, status)
+      INSERT INTO transactions (user_id, amount, category, note, date, status)
       VALUES ($1, $2, $3, $4, $5, $6)
       RETURNING *;
     `;
@@ -57,7 +55,7 @@ export async function POST(req: Request) {
       userId,
       parsedAmount,
       category || "Uncategorized",
-      vendorName, // Maps merchant name to description column
+      vendorName, // Stores merchant name inside 'note'
       parsedDate,
       "pending",
     ];
@@ -70,7 +68,6 @@ export async function POST(req: Request) {
     );
   } catch (error: any) {
     console.error("Webhook processing error:", error);
-    // Returns actual database/runtime error message for easier troubleshooting
     return NextResponse.json(
       { error: "Internal Server Error", details: error.message || String(error) },
       { status: 500 }
