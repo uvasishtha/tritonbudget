@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import { pool } from "@/lib/db"; // Make sure path matches your db export
+import { pool } from "@/lib/db"; // Ensure path matches your db export
 
 export async function POST(req: Request) {
   try {
@@ -13,7 +13,6 @@ export async function POST(req: Request) {
     const body = await req.json();
     const { merchant, vendor, amount, date, category, email } = body;
 
-    // Use merchant or vendor
     const vendorName = merchant || vendor;
 
     if (!vendorName || amount === undefined || amount === null) {
@@ -44,9 +43,9 @@ export async function POST(req: Request) {
       }
     }
 
-    // 4. Save to PostgreSQL database using 'note' column
+    // 4. Save to PostgreSQL using 'created_at' instead of 'date'
     const queryText = `
-      INSERT INTO transactions (user_id, amount, category, note, date, status)
+      INSERT INTO transactions (user_id, amount, category, note, created_at, status)
       VALUES ($1, $2, $3, $4, $5, $6)
       RETURNING *;
     `;
@@ -55,7 +54,7 @@ export async function POST(req: Request) {
       userId,
       parsedAmount,
       category || "Uncategorized",
-      vendorName, // Stores merchant name inside 'note'
+      vendorName,
       parsedDate,
       "pending",
     ];
