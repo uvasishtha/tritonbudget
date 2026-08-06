@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import { pool } from "@/lib/db"; // Make sure path matches your db export
+import { pool } from "@/lib/db"; // Ensure path matches your db export
 
 export async function POST(req: Request) {
   try {
@@ -11,14 +11,26 @@ export async function POST(req: Request) {
 
     // 2. Read incoming payload
     const body = await req.json();
-    const { merchant, amount, date, category, email } = body;
+    const { merchant, vendor, amount, date, category, email } = body;
 
-    if (!merchant || !amount) {
+    // Use vendor if merchant is not provided
+    const vendorName = merchant || vendor;
+
+    if (!vendorName || amount === undefined || amount === null) {
       return NextResponse.json(
-        { error: "Missing required fields" },
+        { error: "Missing required fields: merchant/vendor and amount are required" },
         { status: 400 }
       );
     }
+
+    // Clean and parse amount
+    const parsedAmount = parseFloat(String(amount).replace(/[^0-9.-]+/g, ""));
+    if (isNaN(parsedAmount)) {
+      return NextResponse.json({ error: "Invalid amount format" }, { status: 400 });
+    }
+
+    // Parse date safely
+    const parsedDate = date && !isNaN(Date.parse(date)) ? new Date(date) : new Date();
 
     // 3. Look up user_id from email (defaults to 1 if user not found)
     let userId = 1;
@@ -32,7 +44,9 @@ export async function POST(req: Request) {
       }
     }
 
-    // 4. Save to PostgreSQL database matching your table columns
+    // 4. Insert into PostgreSQL
+    // Note: If your database table does NOT have a 'description' column, 
+    // remove 'description' and $4 from this query.
     const queryText = `
       INSERT INTO transactions (user_id, amount, category, description, date, status)
       VALUES ($1, $2, $3, $4, $5, $6)
@@ -41,10 +55,10 @@ export async function POST(req: Request) {
 
     const values = [
       userId,
-      parseFloat(amount),
+      parsedAmount,
       category || "Uncategorized",
-      merchant, // Maps merchant name to description column
-      date ? new Date(date) : new Date(),
+      vendorName, // Maps merchant name to description column
+      parsedDate,
       "pending",
     ];
 
@@ -54,10 +68,11 @@ export async function POST(req: Request) {
       { message: "Transaction logged successfully", transaction: result.rows[0] },
       { status: 201 }
     );
-  } catch (error) {
+  } catch (error: any) {
     console.error("Webhook processing error:", error);
+    // Returns actual database/runtime error message for easier troubleshooting
     return NextResponse.json(
-      { error: "Internal Server Error" },
+      { error: "Internal Server Error", details: error.message || String(error) },
       { status: 500 }
     );
   }
