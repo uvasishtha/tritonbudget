@@ -31,15 +31,31 @@ export async function POST(req: Request) {
     // Parse date safely
     const parsedDate = date && !isNaN(Date.parse(date)) ? new Date(date) : new Date();
 
-    // 3. Look up user_id from email (defaults to 1 if user not found)
+    // 3. Look up user_id from email or automatically create a new user
     let userId = 1;
     if (email) {
+      const cleanedEmail = email.trim().toLowerCase(); // Normalize email
+
+      // Look up existing user (case-insensitive)
       const userLookup = await pool.query(
-        "SELECT id FROM users WHERE email = $1 LIMIT 1;",
-        [email]
+        "SELECT id FROM users WHERE LOWER(email) = LOWER($1) LIMIT 1;",
+        [cleanedEmail]
       );
+
       if (userLookup.rows.length > 0) {
+        // User exists -> use their existing ID
         userId = userLookup.rows[0].id;
+      } else {
+        // User does NOT exist -> Automatically create a new user account
+        const defaultName = cleanedEmail.split("@")[0]; // e.g., "john" from "john@ucsd.edu"
+
+        const newUser = await pool.query(
+          "INSERT INTO users (email, name) VALUES ($1, $2) RETURNING id;",
+          [cleanedEmail, defaultName]
+        );
+
+        userId = newUser.rows[0].id;
+        console.log(`Created new user with ID ${userId} for email: ${cleanedEmail}`);
       }
     }
 
@@ -62,7 +78,11 @@ export async function POST(req: Request) {
     const result = await pool.query(queryText, values);
 
     return NextResponse.json(
-      { message: "Transaction logged successfully", transaction: result.rows[0] },
+      {
+        message: "Transaction logged successfully",
+        userId,
+        transaction: result.rows[0],
+      },
       { status: 201 }
     );
   } catch (error: any) {
