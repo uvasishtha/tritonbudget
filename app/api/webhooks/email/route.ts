@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import { pool } from "@/lib/db";
+import { pool } from "@/lib/db"; // Ensure path matches your db export
 
 export async function POST(req: Request) {
   try {
@@ -31,36 +31,19 @@ export async function POST(req: Request) {
     // Parse date safely
     const parsedDate = date && !isNaN(Date.parse(date)) ? new Date(date) : new Date();
 
-    // 3. Robust User Lookup / Auto-Creation
-    let userId = 1; // Fallback default
-    const cleanedEmail = email && typeof email === "string" ? email.trim().toLowerCase() : "";
-
-    if (cleanedEmail.length > 0) {
-      // Look up existing user
+    // 3. Look up user_id from email (defaults to 1 if user not found)
+    let userId = 1;
+    if (email) {
       const userLookup = await pool.query(
-        "SELECT id FROM users WHERE LOWER(email) = LOWER($1) LIMIT 1;",
-        [cleanedEmail]
+        "SELECT id FROM users WHERE email = $1 LIMIT 1;",
+        [email]
       );
-
       if (userLookup.rows.length > 0) {
         userId = userLookup.rows[0].id;
-      } else {
-        // Auto-create user if not found
-        const defaultName = cleanedEmail.split("@")[0] || "New User";
-
-        const newUser = await pool.query(
-          "INSERT INTO users (email, name) VALUES ($1, $2) RETURNING id;",
-          [cleanedEmail, defaultName]
-        );
-
-        userId = newUser.rows[0].id;
-        console.log(`Created new user ID ${userId} for ${cleanedEmail}`);
       }
-    } else {
-      console.log("No valid email provided in webhook payload. Defaulting to userId = 1.");
     }
 
-    // 4. Save Transaction
+    // 4. Save to PostgreSQL using 'created_at' instead of 'date'
     const queryText = `
       INSERT INTO transactions (user_id, amount, category, note, created_at, status)
       VALUES ($1, $2, $3, $4, $5, $6)
@@ -79,11 +62,7 @@ export async function POST(req: Request) {
     const result = await pool.query(queryText, values);
 
     return NextResponse.json(
-      {
-        message: "Transaction logged successfully",
-        userId,
-        transaction: result.rows[0],
-      },
+      { message: "Transaction logged successfully", transaction: result.rows[0] },
       { status: 201 }
     );
   } catch (error: any) {
