@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import { pool } from "@/lib/db"; // Ensure path matches your db export
+import { pool } from "@/lib/db";
 
 export async function POST(req: Request) {
   try {
@@ -31,23 +31,22 @@ export async function POST(req: Request) {
     // Parse date safely
     const parsedDate = date && !isNaN(Date.parse(date)) ? new Date(date) : new Date();
 
-    // 3. Look up user_id from email or automatically create a new user
-    let userId = 1;
-    if (email) {
-      const cleanedEmail = email.trim().toLowerCase(); // Normalize email
+    // 3. Robust User Lookup / Auto-Creation
+    let userId = 1; // Fallback default
+    const cleanedEmail = email && typeof email === "string" ? email.trim().toLowerCase() : "";
 
-      // Look up existing user (case-insensitive)
+    if (cleanedEmail.length > 0) {
+      // Look up existing user
       const userLookup = await pool.query(
         "SELECT id FROM users WHERE LOWER(email) = LOWER($1) LIMIT 1;",
         [cleanedEmail]
       );
 
       if (userLookup.rows.length > 0) {
-        // User exists -> use their existing ID
         userId = userLookup.rows[0].id;
       } else {
-        // User does NOT exist -> Automatically create a new user account
-        const defaultName = cleanedEmail.split("@")[0]; // e.g., "john" from "john@ucsd.edu"
+        // Auto-create user if not found
+        const defaultName = cleanedEmail.split("@")[0] || "New User";
 
         const newUser = await pool.query(
           "INSERT INTO users (email, name) VALUES ($1, $2) RETURNING id;",
@@ -55,11 +54,13 @@ export async function POST(req: Request) {
         );
 
         userId = newUser.rows[0].id;
-        console.log(`Created new user with ID ${userId} for email: ${cleanedEmail}`);
+        console.log(`Created new user ID ${userId} for ${cleanedEmail}`);
       }
+    } else {
+      console.log("No valid email provided in webhook payload. Defaulting to userId = 1.");
     }
 
-    // 4. Save to PostgreSQL using 'created_at' instead of 'date'
+    // 4. Save Transaction
     const queryText = `
       INSERT INTO transactions (user_id, amount, category, note, created_at, status)
       VALUES ($1, $2, $3, $4, $5, $6)
