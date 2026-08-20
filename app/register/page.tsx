@@ -14,22 +14,21 @@ export default function RegisterPage() {
   const [error, setError] = useState("");
   const [isLoading, setIsLoading] = useState(false);
 
-  // Simple password strength calculation
+  // Live Password Strength Gauge
   const getPasswordStrength = () => {
     if (!password) return 0;
-    let strength = 0;
-    if (password.length >= 8) strength += 1;
-    if (/[A-Z]/.test(password)) strength += 1;
-    if (/[0-9]/.test(password)) strength += 1;
-    if (/[^A-Za-z0-9]/.test(password)) strength += 1;
-    return strength;
+    let score = 0;
+    if (password.length >= 8) score++;
+    if (/[A-Z]/.test(password)) score++;
+    if (/[0-9]/.test(password)) score++;
+    if (/[^A-Za-z0-9]/.test(password)) score++;
+    return score;
   };
 
   const strength = getPasswordStrength();
 
   async function handleSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
-
     setError("");
     setIsLoading(true);
 
@@ -63,159 +62,121 @@ export default function RegisterPage() {
   }
 
   return (
-    <div className="flex min-h-screen bg-slate-900 font-sans text-slate-100">
-      {/* Left Column - Branding & Highlights */}
-      <div className="relative hidden w-1/2 flex-col justify-between overflow-hidden bg-gradient-to-br from-blue-900 via-indigo-900 to-slate-900 p-12 lg:flex">
-        {/* Background glow effects */}
-        <div className="absolute -top-24 -left-24 h-96 w-96 rounded-full bg-blue-500/20 blur-3xl"></div>
-        <div className="absolute -bottom-24 -right-24 h-96 w-96 rounded-full bg-indigo-500/20 blur-3xl"></div>
+    <main className="relative flex min-h-screen items-center justify-center bg-slate-50 px-6 py-12 font-sans selection:bg-blue-100 selection:text-blue-900">
+      {/* Background Subtle Gradient Glows */}
+      <div className="pointer-events-none absolute -top-20 -left-20 h-96 w-96 rounded-full bg-blue-100/60 blur-3xl" />
+      <div className="pointer-events-none absolute -bottom-20 -right-20 h-96 w-96 rounded-full bg-indigo-100/50 blur-3xl" />
 
-        <div className="relative z-10">
-          <div className="flex items-center gap-3">
-            <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-blue-600 text-xl font-bold text-white shadow-lg shadow-blue-500/30">
-              ⚡
-            </div>
-            <span className="text-xl font-extrabold tracking-tight text-white">
-              Triton<span className="text-blue-400">Budget</span>
-            </span>
+      {/* Main Form Card Container with Hover Lift & Glow */}
+      <div className="group relative w-full max-w-md">
+        {/* Floating Interactive Feature Pill above Card */}
+        <div className="mb-4 flex justify-center">
+          <div className="flex items-center gap-2 rounded-full border border-slate-200 bg-white/80 px-3.5 py-1.5 text-xs font-medium text-slate-600 shadow-sm backdrop-blur-md transition-all duration-300 hover:scale-105 hover:border-blue-300 hover:text-blue-600">
+            <span className="flex h-2 w-2 rounded-full bg-blue-500 animate-pulse" />
+            <span>Auto-claims past emailed receipts instantly</span>
           </div>
         </div>
 
-        <div className="relative z-10 max-w-lg space-y-6">
-          <h1 className="text-4xl font-extrabold leading-tight tracking-tight text-white xl:text-5xl">
-            Smart financial tracking, effortless receipt logging.
-          </h1>
-          <p className="text-lg text-slate-300">
-            Forward your receipt emails or upload receipts directly to match
-            your transactions automatically in real-time.
-          </p>
-
-          <div className="space-y-4 pt-4">
-            <div className="flex items-start gap-3">
-              <div className="mt-1 flex h-6 w-6 items-center justify-center rounded-full bg-blue-500/20 text-blue-400">
-                ✓
-              </div>
-              <div>
-                <p className="font-semibold text-white">Automatic Email Parsing</p>
-                <p className="text-sm text-slate-400">
-                  Receipts emailed before registration are automatically claimed when you sign up.
-                </p>
-              </div>
+        <form
+          onSubmit={handleSubmit}
+          className="relative w-full rounded-2xl border border-slate-200/80 bg-white p-8 shadow-xl shadow-slate-200/50 transition-all duration-300 hover:-translate-y-1 hover:border-slate-300 hover:shadow-2xl hover:shadow-slate-300/40"
+        >
+          {/* Header with Navbar Trident Logo */}
+          <div className="flex items-center gap-3 mb-2">
+            <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-[#082f6b] shadow-md shadow-blue-900/15 transition-transform duration-300 group-hover:scale-105">
+              <svg
+                viewBox="0 0 40 40"
+                className="h-6 w-6 fill-none stroke-[#f6c343]"
+                strokeWidth="2.6"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+              >
+                <path d="M20 5v27" />
+                <path d="M12 11v8c0 5 3 8 8 8s8-3 8-8v-8" />
+                <path d="M8 11l4-5 4 5" />
+                <path d="M24 11l4-5 4 5" />
+                <path d="M16 8l4-5 4 5" />
+                <path d="M16 32h8" />
+              </svg>
             </div>
-            <div className="flex items-start gap-3">
-              <div className="mt-1 flex h-6 w-6 items-center justify-center rounded-full bg-blue-500/20 text-blue-400">
-                ✓
-              </div>
-              <div>
-                <p className="font-semibold text-white">AI-Powered Breakdown</p>
-                <p className="text-sm text-slate-400">
-                  Instant categorization of your spending habits and monthly targets.
-                </p>
-              </div>
-            </div>
-          </div>
-        </div>
-
-        <div className="relative z-10 text-xs text-slate-500">
-          © {new Date().getFullYear()} Triton Budget. All rights reserved.
-        </div>
-      </div>
-
-      {/* Right Column - Registration Form */}
-      <div className="flex w-full items-center justify-center px-6 py-12 lg:w-1/2 lg:px-16">
-        <div className="w-full max-w-md space-y-8">
-          <div>
-            <div className="flex items-center gap-2 lg:hidden mb-6">
-              <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-blue-600 font-bold text-white">
-                ⚡
-              </div>
-              <span className="text-lg font-bold text-white">
-                Triton<span className="text-blue-400">Budget</span>
+            <div>
+              <span className="text-xl font-black text-[#071f49] tracking-tight block">
+                Triton<span className="text-blue-700">Budget</span>
               </span>
             </div>
-            <h2 className="text-3xl font-extrabold tracking-tight text-white">
-              Create an account
-            </h2>
-            <p className="mt-2 text-sm text-slate-400">
-              Get started with your free Triton Budget workspace.
-            </p>
           </div>
 
-          <form onSubmit={handleSubmit} className="mt-8 space-y-5">
+          <h1 className="mt-4 text-2xl font-bold tracking-tight text-slate-900">
+            Create an account
+          </h1>
+          <p className="mt-1 text-sm text-slate-500">
+            Start tracking your spending and auto-logging transactions.
+          </p>
+
+          {/* Form Fields */}
+          <div className="mt-6 space-y-4">
             {/* Name Input */}
-            <div>
-              <label
-                htmlFor="name"
-                className="block text-sm font-medium text-slate-300"
-              >
-                Full Name
+            <div className="group/input">
+              <label className="block text-xs font-semibold uppercase tracking-wider text-slate-600 group-focus-within/input:text-blue-700 transition-colors">
+                Name
               </label>
-              <div className="mt-1">
+              <div className="relative mt-1.5">
                 <input
-                  id="name"
                   type="text"
-                  placeholder="Alex Triton"
                   value={name}
                   onChange={(e) => setName(e.target.value)}
-                  className="w-full rounded-xl border border-slate-700 bg-slate-800/80 px-4 py-3 text-white placeholder-slate-500 transition duration-150 focus:border-blue-500 focus:bg-slate-800 focus:outline-none focus:ring-2 focus:ring-blue-500/20"
+                  placeholder="Alex Triton"
+                  className="w-full rounded-xl border border-slate-200 bg-slate-50/50 px-4 py-3 text-sm text-slate-900 placeholder-slate-400 outline-none transition-all duration-200 focus:border-blue-600 focus:bg-white focus:ring-4 focus:ring-blue-100"
                   required
                 />
               </div>
             </div>
 
             {/* Email Input */}
-            <div>
-              <label
-                htmlFor="email"
-                className="block text-sm font-medium text-slate-300"
-              >
-                Email Address
+            <div className="group/input">
+              <label className="block text-xs font-semibold uppercase tracking-wider text-slate-600 group-focus-within/input:text-blue-700 transition-colors">
+                Email
               </label>
-              <div className="mt-1">
+              <div className="relative mt-1.5">
                 <input
-                  id="email"
                   type="email"
-                  placeholder="you@example.com"
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
-                  className="w-full rounded-xl border border-slate-700 bg-slate-800/80 px-4 py-3 text-white placeholder-slate-500 transition duration-150 focus:border-blue-500 focus:bg-slate-800 focus:outline-none focus:ring-2 focus:ring-blue-500/20"
+                  placeholder="alex@example.com"
+                  className="w-full rounded-xl border border-slate-200 bg-slate-50/50 px-4 py-3 text-sm text-slate-900 placeholder-slate-400 outline-none transition-all duration-200 focus:border-blue-600 focus:bg-white focus:ring-4 focus:ring-blue-100"
                   required
                 />
               </div>
             </div>
 
             {/* Password Input */}
-            <div>
-              <label
-                htmlFor="password"
-                className="block text-sm font-medium text-slate-300"
-              >
+            <div className="group/input">
+              <label className="block text-xs font-semibold uppercase tracking-wider text-slate-600 group-focus-within/input:text-blue-700 transition-colors">
                 Password
               </label>
-              <div className="relative mt-1">
+              <div className="relative mt-1.5">
                 <input
-                  id="password"
                   type={showPassword ? "text" : "password"}
-                  placeholder="••••••••"
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
-                  className="w-full rounded-xl border border-slate-700 bg-slate-800/80 px-4 py-3 pr-12 text-white placeholder-slate-500 transition duration-150 focus:border-blue-500 focus:bg-slate-800 focus:outline-none focus:ring-2 focus:ring-blue-500/20"
+                  placeholder="••••••••"
+                  className="w-full rounded-xl border border-slate-200 bg-slate-50/50 px-4 py-3 pr-14 text-sm text-slate-900 placeholder-slate-400 outline-none transition-all duration-200 focus:border-blue-600 focus:bg-white focus:ring-4 focus:ring-blue-100"
                   minLength={8}
                   required
                 />
                 <button
                   type="button"
                   onClick={() => setShowPassword(!showPassword)}
-                  className="absolute right-3 top-1/2 -translate-y-1/2 text-xs font-semibold text-slate-400 hover:text-slate-200 focus:outline-none"
+                  className="absolute right-3.5 top-1/2 -translate-y-1/2 rounded-md px-1.5 py-1 text-xs font-semibold text-slate-400 hover:bg-slate-100 hover:text-slate-700 focus:outline-none transition-colors"
                 >
                   {showPassword ? "Hide" : "Show"}
                 </button>
               </div>
 
-              {/* Password Strength Meter */}
+              {/* Minimal Strength Indicator on Typing */}
               {password && (
-                <div className="mt-2 space-y-1">
-                  <div className="flex h-1.5 w-full gap-1 overflow-hidden rounded-full bg-slate-800">
+                <div className="mt-2 space-y-1.5 rounded-lg bg-slate-50 p-2.5 border border-slate-100">
+                  <div className="flex h-1.5 w-full gap-1 overflow-hidden rounded-full bg-slate-200">
                     <div
                       className={`h-full transition-all duration-300 ${
                         strength >= 1 ? "w-1/4 bg-red-500" : "w-0"
@@ -223,7 +184,7 @@ export default function RegisterPage() {
                     />
                     <div
                       className={`h-full transition-all duration-300 ${
-                        strength >= 2 ? "w-1/4 bg-yellow-500" : "w-0"
+                        strength >= 2 ? "w-1/4 bg-amber-500" : "w-0"
                       }`}
                     />
                     <div
@@ -237,8 +198,8 @@ export default function RegisterPage() {
                       }`}
                     />
                   </div>
-                  <p className="text-xs text-slate-400">
-                    {strength <= 1 && "Weak password"}
+                  <p className="text-[11px] font-medium text-slate-500">
+                    {strength <= 1 && "Weak - add numbers or symbols"}
                     {strength === 2 && "Fair password"}
                     {strength === 3 && "Good password"}
                     {strength === 4 && "Strong password"}
@@ -246,72 +207,67 @@ export default function RegisterPage() {
                 </div>
               )}
             </div>
+          </div>
 
-            {/* Error Message */}
-            {error && (
-              <div className="flex items-center gap-2 rounded-xl border border-red-500/20 bg-red-500/10 p-4 text-sm text-red-400">
+          {/* Error Container */}
+          {error && (
+            <div className="mt-4 flex items-center gap-2 rounded-xl bg-red-50 p-3.5 border border-red-100 text-xs font-medium text-red-600 animate-shake">
+              <span className="text-base">⚠️</span>
+              <span>{error}</span>
+            </div>
+          )}
+
+          {/* Magnetic Hover Button */}
+          <button
+            type="submit"
+            disabled={isLoading}
+            className="group/btn relative mt-6 w-full overflow-hidden rounded-xl bg-[#082f6b] px-4 py-3.5 text-sm font-semibold text-white shadow-md shadow-blue-900/20 transition-all duration-200 hover:bg-[#071f49] hover:shadow-lg hover:shadow-blue-900/30 active:scale-[0.99] disabled:opacity-60 disabled:cursor-not-allowed"
+          >
+            {isLoading ? (
+              <span className="flex items-center justify-center gap-2">
                 <svg
-                  className="h-5 w-5 flex-shrink-0"
-                  fill="currentColor"
-                  viewBox="0 0 20 20"
+                  className="h-4 w-4 animate-spin text-white"
+                  fill="none"
+                  viewBox="0 0 24 24"
                 >
+                  <circle
+                    className="opacity-25"
+                    cx="12"
+                    cy="12"
+                    r="10"
+                    stroke="currentColor"
+                    strokeWidth="4"
+                  />
                   <path
-                    fillRule="evenodd"
-                    d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z"
-                    clipRule="evenodd"
+                    className="opacity-75"
+                    fill="currentColor"
+                    d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
                   />
                 </svg>
-                <span>{error}</span>
-              </div>
-            )}
-
-            {/* Submit Button */}
-            <button
-              type="submit"
-              disabled={isLoading}
-              className="group relative flex w-full justify-center rounded-xl bg-blue-600 px-4 py-3.5 text-sm font-semibold text-white shadow-lg shadow-blue-600/25 transition duration-150 hover:bg-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 focus:ring-offset-slate-900 disabled:cursor-not-allowed disabled:opacity-60"
-            >
-              {isLoading ? (
-                <span className="flex items-center gap-2">
-                  <svg
-                    className="h-4 w-4 animate-spin text-white"
-                    fill="none"
-                    viewBox="0 0 24 24"
-                  >
-                    <circle
-                      className="opacity-25"
-                      cx="12"
-                      cy="12"
-                      r="10"
-                      stroke="currentColor"
-                      strokeWidth="4"
-                    ></circle>
-                    <path
-                      className="opacity-75"
-                      fill="currentColor"
-                      d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
-                    ></path>
-                  </svg>
-                  Creating your account...
+                Creating account...
+              </span>
+            ) : (
+              <span className="flex items-center justify-center gap-1.5">
+                <span>Create account</span>
+                <span className="transition-transform duration-200 group-hover/btn:translate-x-1">
+                  →
                 </span>
-              ) : (
-                "Create Account"
-              )}
-            </button>
-          </form>
+              </span>
+            )}
+          </button>
 
-          {/* Login Link */}
-          <p className="text-center text-sm text-slate-400">
+          {/* Footer Link */}
+          <p className="mt-6 text-center text-sm text-slate-500">
             Already have an account?{" "}
             <Link
               href="/login"
-              className="font-semibold text-blue-400 underline-offset-4 hover:text-blue-300 hover:underline"
+              className="font-semibold text-blue-700 transition-colors hover:text-blue-800 hover:underline"
             >
-              Log in instead
+              Log in
             </Link>
           </p>
-        </div>
+        </form>
       </div>
-    </div>
+    </main>
   );
 }
