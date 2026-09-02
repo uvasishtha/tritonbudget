@@ -272,11 +272,16 @@ export default function TransactionsPage() {
                 Track your spending manually or scan a receipt to log expenses automatically.
               </p>
 
-              <p className="mt-2 text-sm font-medium text-slate-400">
-                <span className="font-bold text-slate-600">Tip: forward</span> email receipts to{" "}
-                <span className="font-semibold text-slate-500">uvasishtha@ucsd.edu</span>{" "}
-                to add them automatically.
-              </p>
+              <div className="mt-5 inline-flex items-start gap-3 rounded-2xl border border-[#f6c343]/60 bg-[#fff8e6] px-4 py-3 shadow-[0_10px_30px_rgba(198,139,0,0.12)]">
+                <span className="mt-0.5 flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-[#f6c343] text-sm font-black text-[#071f49]">
+                  !
+                </span>
+                <p className="text-sm font-semibold text-[#7a5300]">
+                  Tip: forward email receipts to{" "}
+                  <span className="font-bold text-[#071f49]">uvasishtha@ucsd.edu</span>{" "}
+                  to add them automatically.
+                </p>
+              </div>
             </div>
           </section>
 
