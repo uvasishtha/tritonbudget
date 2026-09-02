@@ -72,9 +72,9 @@ export default function TransactionsPage() {
   const [transactions, setTransactions] = useState<Transaction[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [isSaving, setIsSaving] = useState(false);
-  const [isScanning, setIsScanning] = useState(false);
   const [deletingId, setDeletingId] = useState<number | null>(null);
   const [error, setError] = useState("");
+  const [showScanWipModal, setShowScanWipModal] = useState(false);
 
   const totalSpent = transactions.reduce(
     (runningTotal, transaction) => runningTotal + Number(transaction.amount),
@@ -169,36 +169,6 @@ export default function TransactionsPage() {
       setError("We could not save your transaction.");
     } finally {
       setIsSaving(false);
-    }
-  }
-
-  async function handleReceiptUpload(event: React.ChangeEvent<HTMLInputElement>) {
-    const file = event.target.files?.[0];
-    if (!file) return;
-
-    try {
-      setIsScanning(true);
-      setError("");
-
-      const formData = new FormData();
-      formData.append("receipt", file);
-
-      const response = await fetch("/api/scan-receipt", {
-        method: "POST",
-        body: formData,
-      });
-
-      if (!response.ok) {
-        throw new Error("Failed to scan receipt.");
-      }
-
-      await loadTransactions();
-    } catch (scanError) {
-      console.error(scanError);
-      setError("Failed to process receipt image.");
-    } finally {
-      setIsScanning(false);
-      event.target.value = "";
     }
   }
 
@@ -300,6 +270,12 @@ export default function TransactionsPage() {
 
               <p className="mt-4 text-lg font-medium text-slate-500">
                 Track your spending manually or scan a receipt to log expenses automatically.
+              </p>
+
+              <p className="mt-2 text-sm font-medium text-slate-400">
+                Tip: forward email receipts to{" "}
+                <span className="font-semibold text-slate-500">uvasishtha@ucsd.edu</span>{" "}
+                to add them automatically.
               </p>
             </div>
           </section>
@@ -471,18 +447,46 @@ export default function TransactionsPage() {
               {showForm ? "Close Form" : "Add Transaction"}
             </button>
 
-            <label className="cursor-pointer group flex items-center gap-3 rounded-full border-2 border-[#082f6b] bg-white px-8 py-3.5 font-extrabold text-[#082f6b] shadow-sm transition hover:-translate-y-1 hover:bg-blue-50">
+            <button
+              type="button"
+              onClick={() => setShowScanWipModal(true)}
+              className="cursor-pointer group flex items-center gap-3 rounded-full border-2 border-[#082f6b] bg-white px-8 py-3.5 font-extrabold text-[#082f6b] shadow-sm transition hover:-translate-y-1 hover:bg-blue-50"
+            >
               <span className="text-xl">📷</span>
-              <span>{isScanning ? "Scanning Receipt..." : "Scan Receipt"}</span>
-              <input
-                type="file"
-                accept="image/*"
-                className="hidden"
-                disabled={isScanning}
-                onChange={handleReceiptUpload}
-              />
-            </label>
+              <span>Scan Receipt</span>
+            </button>
           </div>
+
+          {showScanWipModal && (
+            <div
+              className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 p-4"
+              onClick={() => setShowScanWipModal(false)}
+            >
+              <div
+                className="w-full max-w-sm rounded-3xl bg-white p-7 text-center shadow-[0_18px_60px_rgba(15,48,98,0.25)]"
+                onClick={(event) => event.stopPropagation()}
+              >
+                <div className="mx-auto mb-4 flex h-14 w-14 items-center justify-center rounded-2xl bg-[#fff4cc] text-2xl">
+                  🚧
+                </div>
+                <h3 className="text-xl font-black text-[#071f49]">
+                  Work in progress
+                </h3>
+                <p className="mt-2 text-sm font-medium text-slate-500">
+                  Receipt scanning is still being built. In the meantime,
+                  forward email receipts to uvasishtha@ucsd.edu to add them
+                  automatically.
+                </p>
+                <button
+                  type="button"
+                  onClick={() => setShowScanWipModal(false)}
+                  className="mt-6 w-full rounded-full bg-[#082f6b] px-6 py-3 font-extrabold text-white transition hover:-translate-y-0.5 hover:bg-[#0b3f8f]"
+                >
+                  Got it
+                </button>
+              </div>
+            </div>
+          )}
 
           {/* Transaction form */}
           {showForm && (
