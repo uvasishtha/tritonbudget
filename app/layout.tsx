@@ -4,6 +4,7 @@ import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
+import ReceiptScanner from "@/components/ReceiptScanner";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -30,12 +31,17 @@ export default function RootLayout({
       lang="en"
       className={`${geistSans.variable} ${geistMono.variable} h-full antialiased`}
     >
-      <body className="flex min-h-screen flex-col">
+      <body className="relative flex min-h-screen flex-col">
         <Navbar />
 
         <main className="flex-1">
           {children}
         </main>
+
+        {/* Floating Scan & Upload button accessible on all pages */}
+        <div className="fixed bottom-6 right-6 z-50">
+          <ReceiptScanner />
+        </div>
 
         <Footer />
       </body>
