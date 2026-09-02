@@ -273,7 +273,7 @@ export default function TransactionsPage() {
               </p>
 
               <p className="mt-2 text-sm font-medium text-slate-400">
-                Tip: forward email receipts to{" "}
+                <span className="font-bold text-slate-600">Tip: forward</span> email receipts to{" "}
                 <span className="font-semibold text-slate-500">uvasishtha@ucsd.edu</span>{" "}
                 to add them automatically.
               </p>
